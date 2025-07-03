@@ -50,9 +50,12 @@ def cb_record_once_accel_data():
     dpg.set_value("accel_x_value_cal", f"{accel_data['x']:.2f}")
     dpg.set_value("accel_y_value_cal", f"{accel_data['y']:.2f}")
     dpg.set_value("accel_z_value_cal", f"{accel_data['z']:.2f}")
-    cal_accel.add_record(accel_data['x'], accel_data['y'], accel_data['z'])
+    cal_accel.add_record(accel_data['x'], accel_data['y'], accel_data['z']) 
     count = cal_accel.count_records()
     dpg.set_value("recorded_data_count", f"Recorded Data: {count}")
+
+    if count % 2 == 0:  # Save every 2 records
+        offset, scale = cal_accel.calculate_calibration()
 
 def cb_record_continuously_accel_data():
     global recordContinously
@@ -68,7 +71,8 @@ def cb_record_continuously_accel_data():
         dpg.set_value("accel_z_value_cal", f"{accel_data['z']:.2f}")
         cal_accel.add_record(accel_data['x'], accel_data['y'], accel_data['z'])
         dpg.set_value("recorded_data_count", f"Recorded Data: {cal_accel.count_records()}")
-        time.sleep(0.3)  
+        time.sleep(0.3)
+        offset, scale = cal_accel.calculate_calibration()  
     recordContinously = False
 
 def cb_get_min_max():
@@ -77,6 +81,9 @@ def cb_get_min_max():
         dpg.set_value("min_max_values_input", f"{min_max_values[0]:.2f}, {min_max_values[1]:.2f}, {min_max_values[2]:.2f}, {min_max_values[3]:.2f}, {min_max_values[4]:.2f}, {min_max_values[5]:.2f}")
     else:
         dpg.set_value("min_max_values_input", "No records available")
+
+def cb_save_calibration():
+    offset, scale = cal_accel.calculate_calibration() # Save calibration data to txt file
 
 def cb_send_offsets():
     offsets = cal_accel.getMinMax()
